@@ -63,6 +63,7 @@ async function main() {
   }
 
   if (newEmojis.length === 0) {
+    console.log("no new emojis, bailing out")
     return 0;
   }
 
