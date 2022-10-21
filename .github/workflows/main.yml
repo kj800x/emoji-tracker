@@ -24,8 +24,6 @@ jobs:
         env:
           SLACK_WORKSPACE: ${{ secrets.SLACK_WORKSPACE }}
           SLACK_OAUTH: ${{ secrets.SLACK_OAUTH }}
-      - name: Zip Project
-        run: zip output.zip -r emoji-tracker
       - name: Upload to Lambda
         uses: appleboy/lambda-action@master
         with:
@@ -33,4 +31,4 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.AWS_REGION }}
           function_name: emoji-tracker
-          zip_file: output.zip
+          source: emoji-tracker
