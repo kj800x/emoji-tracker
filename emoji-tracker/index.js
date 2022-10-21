@@ -2,7 +2,7 @@ const path = require("path");
 require('dotenv').config({ path: path.join(__dirname, ".env") })
 
 const AWS = require("aws-sdk");
-const { buildRss } = require("./rss");
+const { buildRss, buildRssVerbose } = require("./rss");
 const { fetchEmojis } = require("./slack");
 
 function writeToS3(S3Client, Key, Body) {

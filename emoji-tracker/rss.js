@@ -73,5 +73,6 @@ const buildRssVerbose = (now, newEmojis, previousUpdateTime) => {
 };
 
 module.exports = {
-  buildRss
+  buildRss,
+  buildRssVerbose
 };
