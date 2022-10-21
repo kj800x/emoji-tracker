@@ -27,8 +27,8 @@ const template = ({
 
 const buildRss = (now, newEmojis, previousUpdateTime) => {
   const pubDate = new Date(now);
-  pubDate.setMinutes(0);
-  pubDate.setHours(7);
+  // pubDate.setHours(7);
+  // pubDate.setMinutes(0);
   pubDate.setSeconds(0);
   pubDate.setMilliseconds(0);
 
