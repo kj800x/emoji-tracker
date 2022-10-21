@@ -39,8 +39,8 @@ async function getPreviousMetadata() {
     const string = await readFromS3(BucketCoolkevS3, "hubspot-emojis-metadata.json");
     console.log(string);
     return JSON.parse(string);
-  } catch (e) {
-    console.log(e)
+  } catch (err) {
+    console.log(err)
     return {
       emojis: [],
       updated: 0
@@ -56,7 +56,7 @@ async function main() {
 
   const newEmojis = [];
   for (const emoji of latestEmojis) {
-    if (!previousMetadata.emojis.includes(e)) {
+    if (!previousMetadata.emojis.includes(emoji)) {
       newEmojis.push(emoji)
     }
   }
