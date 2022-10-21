@@ -2,7 +2,9 @@ const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 const template = ({
   now,
-  pubDate
+  pubDate,
+  newEmojis,
+  previousUpdateTime
 }) => `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
@@ -13,44 +15,26 @@ const template = ({
  <pubDate>${pubDate.toUTCString()}</pubDate>
  <ttl>10</ttl>
 
- <item>
- <title>
-   Test Item :excited:
- </title>
- <description>Test Description. I really hope this works :excited:</description>
- <link>${"https://hubspot.slack.com/customize/emoji"}</link>
- <pubDate>${pubDate.toUTCString()}</pubDate>
-</item>
+  <item>
+  <title>
+    New emojis since ${previousUpdateTime.toUTCString()}
+  </title>
+  <description>${newEmojis.map(emoji => `:${emoji}: `)}</description>
+  <link>https://hubspot.slack.com/customize/emoji}</link>
+  <pubDate>${pubDate.toUTCString()}</pubDate>
+  </item>
 
 </channel>
 </rss>`;
 
-/*
-
- ${popups
-   .map(
-     popup => `
- <item>
- <title>
-   ${dow} at Davenport: ${popup.name}
- </title>
- <description></description>
- <link>${popup.link || "https://fooda.com/my"}</link>
- <pubDate>${pubDate.toUTCString()}</pubDate>
-</item>
- `
-   )
-   .join("\n")}
-*/
-
-const buildRss = (now) => {
+const buildRss = (now, newEmojis, previousUpdateTime) => {
   const pubDate = new Date(now);
   pubDate.setMinutes(0);
   pubDate.setHours(7);
   pubDate.setSeconds(0);
   pubDate.setMilliseconds(0);
 
-  return template({ pubDate, now });
+  return template({ pubDate, now, newEmojis, previousUpdateTime });
 };
 
 module.exports = {

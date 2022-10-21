@@ -2,5 +2,10 @@
   "name": "emoji-tracker",
   "private": true,
   "author": "Kevin Johnson <kevin@kj800x.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@slack/web-api": "6.7.2",
+    "aws-sdk": "2",
+    "dotenv": "16.0.3"
+  }
 }
