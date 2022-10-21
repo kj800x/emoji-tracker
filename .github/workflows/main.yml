@@ -19,8 +19,8 @@ jobs:
           CI: true
       - name: Write Secrets
         run: |
-          echo SLACK_OAUTH=$SLACK_OAUTH >> emoji-tracker/.env
-          echo SLACK_WORKSPACE=$SLACK_WORKSPACE >> emoji-tracker/.env
+          echo SLACK_OAUTH=$SLACK_OAUTH >> emoji-tracker/secrets.txt
+          echo SLACK_WORKSPACE=$SLACK_WORKSPACE >> emoji-tracker/secrets.txt
       - name: Upload to Lambda
         uses: appleboy/lambda-action@master
         with:
