@@ -6,7 +6,7 @@ const template = ({
 }) => `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
- <title>New ${process.env.SLACK_WORKSPACE} Emojis</title>
+ <title>New ${process.env.SLACK_WORKSPACE}.slack.com Emojis</title>
  <description>Coolkev's ${process.env.SLACK_WORKSPACE} "New Emojis" RSS feed</description>
  <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
  <lastBuildDate>${now.toUTCString()}</lastBuildDate>
@@ -33,7 +33,7 @@ const verboseTemplate = ({
 }) => `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
- <title>New ${process.env.SLACK_WORKSPACE} Emojis</title>
+ <title>New ${process.env.SLACK_WORKSPACE}.slack.com Emojis</title>
  <description>Coolkev's ${process.env.SLACK_WORKSPACE} "New Emojis" RSS feed</description>
  <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
  <lastBuildDate>${now.toUTCString()}</lastBuildDate>
