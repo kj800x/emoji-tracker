@@ -6,8 +6,12 @@ const token = process.env.SLACK_OAUTH;
 // Initialize
 const web = new WebClient(token);
 
-export function fetchEmojis() {
+function fetchEmojis() {
   const emojis = await web.emoji.list()
 
   return Object.keys(emojis.emoji)
+}
+
+module.exports = {
+  fetchEmojis
 }
