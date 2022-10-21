@@ -15,9 +15,9 @@ const template = ({
 
  <item>
  <title>
-   Test Item
+   Test Item :excited:
  </title>
- <description>Test Description</description>
+ <description>Test Description. I really hope this works :excited:</description>
  <link>${"https://hubspot.slack.com/customize/emoji"}</link>
  <pubDate>${pubDate.toUTCString()}</pubDate>
 </item>
@@ -46,7 +46,7 @@ const template = ({
 const buildRss = (now) => {
   const pubDate = new Date(now);
   pubDate.setMinutes(0);
-  pubDate.setHours(6);
+  pubDate.setHours(7);
   pubDate.setSeconds(0);
   pubDate.setMilliseconds(0);
 
