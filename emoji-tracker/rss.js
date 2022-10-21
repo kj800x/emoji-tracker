@@ -17,7 +17,7 @@ const template = ({
   <title>
     New emojis since ${previousUpdateTime.toUTCString()}
   </title>
-  <description>${newEmojis.map(emoji => `:${emoji}: `)}</description>
+  <description>${newEmojis.map(emoji => `:${emoji}:`).join(" ")}</description>
   <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji}</link>
   <pubDate>${pubDate.toUTCString()}</pubDate>
   </item>
