@@ -1,5 +1,3 @@
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-
 const template = ({
   now,
   pubDate,
@@ -8,9 +6,9 @@ const template = ({
 }) => `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
- <title>HubSpot New Emojis</title>
- <description>Kevin Johnson's HubSpot New Emojis RSS feed</description>
- <link>https://hubspot.slack.com/customize/emoji</link>
+ <title>New Emojis</title>
+ <description>Coolkev's ${process.env.SLACK_WORKSPACE} "New Emojis" RSS feed</description>
+ <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
  <lastBuildDate>${now.toUTCString()}</lastBuildDate>
  <pubDate>${pubDate.toUTCString()}</pubDate>
  <ttl>10</ttl>
@@ -20,7 +18,7 @@ const template = ({
     New emojis since ${previousUpdateTime.toUTCString()}
   </title>
   <description>${newEmojis.map(emoji => `:${emoji}: `)}</description>
-  <link>https://hubspot.slack.com/customize/emoji}</link>
+  <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji}</link>
   <pubDate>${pubDate.toUTCString()}</pubDate>
   </item>
 

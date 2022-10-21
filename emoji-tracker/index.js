@@ -5,11 +5,6 @@ const AWS = require("aws-sdk");
 const { buildRss } = require("./rss");
 const { fetchEmojis } = require("./slack");
 
-const BucketCoolkevS3 = new AWS.S3({
-  apiVersion: "2006-03-01",
-  params: { Bucket: "bucket.coolkev.com" }
-});
-
 function writeToS3(S3Client, Key, Body) {
   return new Promise((resolve, reject) => {
     S3Client.upload({ Key, Body, ACL: "public-read" }, function(err, data) {
@@ -34,13 +29,14 @@ function readFromS3(S3Client, Key) {
   });
 }
 
-async function getPreviousMetadata() {
+async function getPreviousMetadata(bucket) {
   try {
-    const string = await readFromS3(BucketCoolkevS3, "hubspot-emojis-metadata.json");
-    console.log(string);
+    const string = await readFromS3(bucket, `${process.env.SLACK_WORKSPACE}-emojis-metadata.json`);
     return JSON.parse(string);
   } catch (err) {
+    console.log("Failed to read previous metadata from the bucket")
     console.log(err)
+    console.log("Starting over from scratch")
     return {
       emojis: [],
       updated: 0
@@ -51,7 +47,12 @@ async function getPreviousMetadata() {
 async function main() {
   const now = new Date()
 
-  const previousMetadata = await getPreviousMetadata();
+  const Bucket = new AWS.S3({
+    apiVersion: "2006-03-01",
+    params: { Bucket: process.env.S3_BUCKET }
+  });
+
+  const previousMetadata = await getPreviousMetadata(Bucket);
   const latestEmojis = await fetchEmojis();
 
   const newEmojis = [];
@@ -61,13 +62,19 @@ async function main() {
     }
   }
 
+  if (newEmojis.length === 0) {
+    return 0;
+  }
+
   const rss = buildRss(now, newEmojis, new Date(previousMetadata.updated));
 
-  await writeToS3(BucketCoolkevS3, "hubspot-emojis-metadata.json", JSON.stringify({
+  await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis-metadata.json`, JSON.stringify({
     emojis: latestEmojis,
     updated: now.getTime()
   }));
-  await writeToS3(BucketCoolkevS3, "hubspot-emojis.rss", rss);
+  await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis.rss`, rss);
+
+  return 0;
 }
 
 module.exports = {

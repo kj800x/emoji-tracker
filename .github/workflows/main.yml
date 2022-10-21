@@ -21,9 +21,11 @@ jobs:
         run: |
           echo SLACK_OAUTH=$SLACK_OAUTH >> emoji-tracker/.env
           echo SLACK_WORKSPACE=$SLACK_WORKSPACE >> emoji-tracker/.env
+          echo S3_BUCKET=$S3_BUCKET >> emoji-tracker/.env
         env:
           SLACK_WORKSPACE: ${{ secrets.SLACK_WORKSPACE }}
           SLACK_OAUTH: ${{ secrets.SLACK_OAUTH }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
       - name: Upload to Lambda
         uses: appleboy/lambda-action@master
         with:
