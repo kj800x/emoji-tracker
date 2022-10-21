@@ -1,4 +1,4 @@
-name: deploy to lambda
+name: Lambda Deploy
 
 on:
   push:
@@ -6,13 +6,22 @@ on:
       - master
 
 jobs:
-  deploy_source:
-    name: deploy lambda from source
+  deploy:
+    name: Deploy Lambda
     runs-on: ubuntu-latest
     steps:
-      - name: checkout source code
+      - name: Checkout
         uses: actions/checkout@v1
-      - name: default deploy
+      - name: NPM Install
+        run: npm install
+        working-directory: emoji-tracker
+        env:
+          CI: true
+      - name: Write Secrets
+        run: |
+          echo SLACK_OAUTH=$SLACK_OAUTH >> emoji-tracker/.env
+          echo SLACK_WORKSPACE=$SLACK_WORKSPACE >> emoji-tracker/.env
+      - name: Upload to Lambda
         uses: appleboy/lambda-action@master
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
