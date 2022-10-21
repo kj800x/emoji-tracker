@@ -15,7 +15,7 @@ const template = ({
 
   <item>
   <title>
-    New emojis since ${previousUpdateTime.toLocaleString()}
+    New emojis since ${previousUpdateTime.toLocaleString('en-US', { timeZone: 'America/New_York'})}
   </title>
   <description>${newEmojis.map(emoji => `:${emoji}:`).join(" ")}</description>
   <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
@@ -42,7 +42,7 @@ const verboseTemplate = ({
 
   <item>
   <title>
-    New emojis since ${previousUpdateTime.toLocaleString()}
+    New emojis since ${previousUpdateTime.toLocaleString('en-US', { timeZone: 'America/New_York'})}
   </title>
   <description>${newEmojis.map(emoji => `\`${emoji}\`: :${emoji}:`).join("\n")}</description>
   <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
