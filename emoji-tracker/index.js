@@ -67,8 +67,8 @@ async function main() {
     return 0;
   }
 
-  const rss = buildRss(now, newEmojis, new Date(previousMetadata.updated));
-  const rssVerbose = buildRssVerbose(now, newEmojis, new Date(previousMetadata.updated))
+  const rss = buildRss(now, newEmojis, new Date(previousMetadata.updated), Object.keys(latestEmojis).length);
+  const rssVerbose = buildRssVerbose(now, newEmojis, new Date(previousMetadata.updated), Object.keys(latestEmojis).length)
 
   await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis-metadata.json`, JSON.stringify({
     emojis: latestEmojis,
