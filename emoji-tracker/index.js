@@ -45,6 +45,8 @@ async function getPreviousMetadata(bucket) {
 }
 
 async function main() {
+  console.log("main function running")
+
   const now = new Date()
 
   const Bucket = new AWS.S3({
@@ -53,7 +55,12 @@ async function main() {
   });
 
   const previousMetadata = await getPreviousMetadata(Bucket);
+
+  console.log(`Previous metadata showed ${previousMetadata.emojis.length} emojis and was last updated ${previousMetadata.updated}`)
+
   const latestEmojis = await fetchEmojis();
+
+  console.log(`Latest emoji data shows ${latestEmojis.length} emojis`)
 
   const newEmojis = [];
   for (const emoji of latestEmojis) {
@@ -61,6 +68,8 @@ async function main() {
       newEmojis.push(emoji)
     }
   }
+
+  console.log(`Found ${newEmojis.length} new emojis`)
 
   if (newEmojis.length === 0) {
     console.log("no new emojis, bailing out")
@@ -70,13 +79,21 @@ async function main() {
   const rss = buildRss(now, newEmojis, new Date(previousMetadata.updated), Object.keys(latestEmojis).length);
   const rssVerbose = buildRssVerbose(now, newEmojis, new Date(previousMetadata.updated), Object.keys(latestEmojis).length)
 
+  console.log(`RSS feeds generated`)
+
   await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis-metadata.json`, JSON.stringify({
     emojis: latestEmojis,
     updated: now.getTime()
   }));
+  
+  console.log(`Updated metadata uploaded`)
+
   await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis-verbose.rss`, rssVerbose);
   await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis.rss`, rss);
 
+  console.log(`RSS feeds uploaded`)
+
+  console.log(`All done`)
   return 0;
 }
 
