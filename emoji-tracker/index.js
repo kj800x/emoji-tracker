@@ -120,18 +120,69 @@ async function update() {
   return 0;
 }
 
+const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
+
 async function main(event) {
   if (event) {
     console.log(JSON.stringify(event));
 
-    // retrieve signature and payload
-    const webhookSignature = event.headers.SignatureHeader;
+    const slackRequestTimestamp = event.headers["X-Slack-Request-Timestamp"];
+    const slackSignature = event.headers["X-Slack-Signature"];
+
+    // Check for replay attacks
+    if (
+      new Date().getTime() - parseInt(slackRequestTimestamp, 10) * 1000 >
+      FIVE_MINUTES_IN_MS
+    ) {
+      console.log("request timestamp is too far in the past");
+      return {
+        error: "request timestamp is too far in the past",
+      };
+    }
+
+    const sigBaseString = ["v0", slackRequestTimestamp, event.body].join(":");
+    const expected = `v0=${crypto
+      .createHmac("sha256", process.env.SLACK_SIGNING_SECRET)
+      .update(sigBaseString)
+      .digest("base64")}`;
+
+    // Validate signature
+    if (!crypto.timingSafeEqual(expected, slackSignature)) {
+      console.log(
+        "slack webhook signature validation failed",
+        expected,
+        slackSignature
+      );
+      return {
+        error: "slack webhook signature validation failed",
+      };
+    }
+
+    // The event is trusted!
     const webhookPayload = JSON.parse(event.body);
 
-    console.log({ webhookSignature, webhookPayload });
-
-    return 0;
+    switch (webhookPayload.type) {
+      case "url_verification": {
+        console.log("replying to url_verification challenge");
+        return webhookPayload.type.challenge;
+      }
+      case "app_mention": {
+        console.log("got app_mention");
+        return {
+          "i am": "excited",
+        };
+      }
+      default: {
+        console.log(
+          `unexpected slack webhook message type: ${webhookPayload.type}`
+        );
+        return {
+          error: "unexpected slack webhook message type",
+        };
+      }
+    }
   } else {
+    console.log("doing cron update");
     return await update();
   }
 }
