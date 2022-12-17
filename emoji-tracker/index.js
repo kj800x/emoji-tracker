@@ -148,6 +148,7 @@ async function main(event) {
       .digest("base64")}`;
 
     // Validate signature
+    console.log(expected, slackSignature);
     if (
       !crypto.timingSafeEqual(
         Buffer.from(expected, "utf-8"),
