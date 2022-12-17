@@ -4,7 +4,7 @@ require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const AWS = require("aws-sdk");
 const { buildRss, buildRssVerbose } = require("./rss");
-const { fetchEmojis } = require("./slack");
+const { fetchEmojis, postMessage } = require("./slack");
 
 function writeToS3(S3Client, Key, Body) {
   return new Promise((resolve, reject) => {
@@ -123,6 +123,51 @@ async function update() {
 
 const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 
+const HELP_TEXT = "todo: help text";
+
+// slack event
+async function processEvent(event) {
+  switch (event.type) {
+    case "app_mention": {
+      const { text, channel, user } = event;
+
+      async function reply(text) {
+        await postMessage(channel, `<@${user}> ${text}`);
+      }
+
+      const cleanedText = text
+        .replace(`<@${process.env.SLACK_APP_ID}>`, "")
+        .split("")
+        .filter(Boolean);
+
+      const command = cleanedText[0];
+
+      switch (command) {
+        case "help":
+          await reply(HELP_TEXT);
+          break;
+        case "subscribe":
+          await reply("subscribe TODO");
+          break;
+        case "unsubscribe":
+          await reply("unsubscribe TODO");
+          break;
+        default:
+          await reply("Sorry, I didn't recognize that command");
+          break;
+      }
+
+      return { status: "handled" };
+    }
+    default: {
+      return {
+        error: "Unknown Slack event type",
+      };
+    }
+  }
+}
+
+// aws event
 async function main(event) {
   if (event && "httpMethod" in event && event.httpMethod === "GET") {
     return { hi: "hows it goin" };
@@ -178,11 +223,10 @@ async function main(event) {
         console.log(`Returning: ${webhookPayload.challenge}`);
         return webhookPayload.challenge;
       }
-      case "app_mention": {
-        console.log("got app_mention");
-        return {
-          "i am": "excited",
-        };
+      case "event_callback": {
+        const event = webhookPayload.event;
+
+        return await processEvent(event);
       }
       default: {
         console.log(
@@ -203,11 +247,19 @@ const wrapper = (fn) => {
   return async (...args) => {
     result = await fn(...args);
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(result),
-    };
+    if (result.error) {
+      return {
+        statusCode: 500,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result),
+      };
+    } else {
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result),
+      };
+    }
   };
 };
 

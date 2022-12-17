@@ -12,6 +12,11 @@ async function fetchEmojis() {
   return Object.keys(emojis.emoji);
 }
 
+async function postMessage(channel, text) {
+  return await web.chat.postMessage({ channel, text });
+}
+
 module.exports = {
   fetchEmojis,
+  postMessage,
 };
