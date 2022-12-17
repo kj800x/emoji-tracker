@@ -13,7 +13,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: NPM Install
-        run: npm install
+        run: npm ci
+        working-directory: emoji-tracker
+      - name: tsc
+        run: npm run build
+        working-directory: emoji-tracker
+        env:
+          CI: true
+      - name: NPM Install Prod
+        run: npm ci --production=false
         working-directory: emoji-tracker
         env:
           CI: true
