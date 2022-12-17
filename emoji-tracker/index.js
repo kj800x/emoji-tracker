@@ -148,7 +148,12 @@ async function main(event) {
       .digest("base64")}`;
 
     // Validate signature
-    if (!crypto.timingSafeEqual(expected, slackSignature)) {
+    if (
+      !crypto.timingSafeEqual(
+        Buffer.from(expected, "utf-8"),
+        Buffer.from(slackSignature, "utf-8")
+      )
+    ) {
       console.log(
         "slack webhook signature validation failed",
         expected,
