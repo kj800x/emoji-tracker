@@ -199,6 +199,18 @@ async function main(event) {
   }
 }
 
+const wrapper = (fn) => {
+  return async (...args) => {
+    result = await fn(...args);
+
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(result),
+    };
+  };
+};
+
 module.exports = {
-  handler: main,
+  handler: wrapper(main),
 };
