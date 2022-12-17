@@ -3,12 +3,14 @@ const template = ({
   pubDate,
   newEmojis,
   totalCount,
-  previousUpdateTime
+  previousUpdateTime,
 }) => `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
  <title>New ${process.env.SLACK_WORKSPACE} Emojis</title>
- <description>Coolkev's ${process.env.SLACK_WORKSPACE} "New Emojis" RSS feed</description>
+ <description>Coolkev's ${
+   process.env.SLACK_WORKSPACE
+ } "New Emojis" RSS feed</description>
  <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
  <lastBuildDate>${now.toUTCString()}</lastBuildDate>
  <pubDate>${pubDate.toUTCString()}</pubDate>
@@ -16,9 +18,11 @@ const template = ({
 
   <item>
   <title>
-    New emojis since ${previousUpdateTime.toLocaleString('en-US', { timeZone: 'America/New_York'})}
+    New emojis since ${previousUpdateTime.toLocaleString("en-US", {
+      timeZone: "America/New_York",
+    })}
   </title>
-  <description>${newEmojis.map(emoji => `:${emoji}:`).join(" ")}
+  <description>${newEmojis.map((emoji) => `:${emoji}:`).join(" ")}
 
   ${totalCount} total emojis</description>
   <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
@@ -33,12 +37,14 @@ const verboseTemplate = ({
   pubDate,
   newEmojis,
   totalCount,
-  previousUpdateTime
+  previousUpdateTime,
 }) => `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
  <title>New ${process.env.SLACK_WORKSPACE} Emojis</title>
- <description>Coolkev's ${process.env.SLACK_WORKSPACE} "New Emojis" RSS feed</description>
+ <description>Coolkev's ${
+   process.env.SLACK_WORKSPACE
+ } "New Emojis" RSS feed</description>
  <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
  <lastBuildDate>${now.toUTCString()}</lastBuildDate>
  <pubDate>${pubDate.toUTCString()}</pubDate>
@@ -46,9 +52,13 @@ const verboseTemplate = ({
 
   <item>
   <title>
-    New emojis since ${previousUpdateTime.toLocaleString('en-US', { timeZone: 'America/New_York'})}
+    New emojis since ${previousUpdateTime.toLocaleString("en-US", {
+      timeZone: "America/New_York",
+    })}
   </title>
-  <description>${newEmojis.map(emoji => `\`${emoji}\`: :${emoji}:`).join("\n")}
+  <description>${newEmojis
+    .map((emoji) => `\`${emoji}\`: :${emoji}:`)
+    .join("\n")}
 
   ${totalCount} total emojis</description>
   <link>https://${process.env.SLACK_WORKSPACE}.slack.com/customize/emoji</link>
@@ -75,10 +85,16 @@ const buildRssVerbose = (now, newEmojis, previousUpdateTime, totalCount) => {
   pubDate.setSeconds(0);
   pubDate.setMilliseconds(0);
 
-  return verboseTemplate({ pubDate, now, newEmojis, previousUpdateTime, totalCount });
+  return verboseTemplate({
+    pubDate,
+    now,
+    newEmojis,
+    previousUpdateTime,
+    totalCount,
+  });
 };
 
 module.exports = {
   buildRss,
-  buildRssVerbose
+  buildRssVerbose,
 };
