@@ -124,6 +124,10 @@ async function update() {
 const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 
 async function main(event) {
+  if (event && "httpMethod" in event && event.httpMethod === "GET") {
+    return { hi: "hows it goin" };
+  }
+
   if (event) {
     console.log(JSON.stringify(event));
 
@@ -171,7 +175,8 @@ async function main(event) {
     switch (webhookPayload.type) {
       case "url_verification": {
         console.log("replying to url_verification challenge");
-        return { challenge: webhookPayload.challenge };
+        console.log(`Returning: ${webhookPayload.challenge}`);
+        return webhookPayload.challenge;
       }
       case "app_mention": {
         console.log("got app_mention");
