@@ -135,12 +135,18 @@ async function processEvent(event) {
         await postMessage(channel, `<@${user}> ${text}`);
       }
 
+      console.log(text);
+
       const cleanedText = text
         .replace(`<@${process.env.SLACK_APP_ID}>`, "")
         .split("")
         .filter(Boolean);
 
+      console.log(cleanedText);
+
       const command = cleanedText[0];
+
+      console.log(command);
 
       switch (command) {
         case "help":
