@@ -47,7 +47,7 @@ async function getPreviousMetadata(bucket) {
   }
 }
 
-async function main() {
+async function update() {
   console.log("main function running");
 
   const now = new Date();
@@ -118,6 +118,22 @@ async function main() {
 
   console.log(`All done`);
   return 0;
+}
+
+async function main(event) {
+  if (event) {
+    console.log(JSON.stringify(event));
+
+    // retrieve signature and payload
+    const webhookSignature = event.headers.SignatureHeader;
+    const webhookPayload = JSON.parse(event.body);
+
+    console.log({ webhookSignature, webhookPayload });
+
+    return 0;
+  } else {
+    return await update();
+  }
 }
 
 module.exports = {
