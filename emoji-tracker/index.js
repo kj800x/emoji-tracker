@@ -144,8 +144,8 @@ async function main(event) {
     const sigBaseString = ["v0", slackRequestTimestamp, event.body].join(":");
     const expected = `v0=${crypto
       .createHmac("sha256", process.env.SLACK_SIGNING_SECRET)
-      .update(sigBaseString)
-      .digest("base64")}`;
+      .update(sigBaseString, "utf-8")
+      .digest("hex")}`;
 
     // Validate signature
     console.log(expected, slackSignature);
@@ -171,7 +171,7 @@ async function main(event) {
     switch (webhookPayload.type) {
       case "url_verification": {
         console.log("replying to url_verification challenge");
-        return webhookPayload.type.challenge;
+        return { challenge: webhookPayload.type.challenge };
       }
       case "app_mention": {
         console.log("got app_mention");
