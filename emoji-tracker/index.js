@@ -171,7 +171,7 @@ async function main(event) {
     switch (webhookPayload.type) {
       case "url_verification": {
         console.log("replying to url_verification challenge");
-        return { challenge: webhookPayload.type.challenge };
+        return { challenge: webhookPayload.challenge };
       }
       case "app_mention": {
         console.log("got app_mention");
