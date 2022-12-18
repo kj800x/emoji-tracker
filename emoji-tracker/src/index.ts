@@ -1,42 +1,51 @@
-const path = require("path");
-const crypto = require("crypto");
-require("dotenv").config({ path: path.join(__dirname, ".env") });
+import path from "path";
+import crypto from "crypto";
+require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
-const AWS = require("aws-sdk");
-const { buildRss, buildRssVerbose } = require("./rss");
-const { fetchEmojis, postMessage } = require("./slack");
+import AWS from "aws-sdk";
+import { buildRss, buildRssVerbose } from "./rss";
+import { fetchEmojis, postMessage } from "./slack";
+import S3, { GetObjectRequest, PutObjectRequest } from "aws-sdk/clients/s3";
 
-function writeToS3(S3Client, Key, Body) {
+function writeToS3(S3Client: S3, Key: string, Body: string) {
   return new Promise((resolve, reject) => {
-    S3Client.upload({ Key, Body, ACL: "public-read" }, function (err, data) {
+    S3Client.upload(
+      { Key, Body, ACL: "public-read" } as PutObjectRequest,
+      function (err, data) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      }
+    );
+  });
+}
+
+function readFromS3(S3Client: S3, Key: string) {
+  return new Promise<S3.Body>((resolve, reject) => {
+    S3Client.getObject({ Key } as GetObjectRequest, function (err, data) {
       if (err) {
         reject(err);
       } else {
-        resolve(data);
+        resolve(data.Body!);
       }
     });
   });
 }
 
-function readFromS3(S3Client, Key) {
-  return new Promise((resolve, reject) => {
-    S3Client.getObject({ Key }, function (err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data.Body);
-      }
-    });
-  });
+interface Metadata {
+  emojis: string[];
+  updated: number;
 }
 
-async function getPreviousMetadata(bucket) {
+async function getPreviousMetadata(bucket: AWS.S3): Promise<Metadata> {
   try {
     const string = await readFromS3(
       bucket,
-      `${process.env.SLACK_WORKSPACE}-emojis-metadata.json`
+      `${process.env["SLACK_WORKSPACE"]}-emojis-metadata.json`
     );
-    return JSON.parse(string);
+    return JSON.parse(string.toString("utf-8"));
   } catch (err) {
     console.log("Failed to read previous metadata from the bucket");
     console.log(err);
@@ -55,7 +64,7 @@ async function update() {
 
   const Bucket = new AWS.S3({
     apiVersion: "2006-03-01",
-    params: { Bucket: process.env.S3_BUCKET },
+    params: { Bucket: process.env["S3_BUCKET"] },
   });
 
   const previousMetadata = await getPreviousMetadata(Bucket);
@@ -99,7 +108,7 @@ async function update() {
 
   await writeToS3(
     Bucket,
-    `${process.env.SLACK_WORKSPACE}-emojis-metadata.json`,
+    `${process.env["SLACK_WORKSPACE"]}-emojis-metadata.json`,
     JSON.stringify({
       emojis: latestEmojis,
       updated: now.getTime(),
@@ -110,10 +119,10 @@ async function update() {
 
   await writeToS3(
     Bucket,
-    `${process.env.SLACK_WORKSPACE}-emojis-verbose.rss`,
+    `${process.env["SLACK_WORKSPACE"]}-emojis-verbose.rss`,
     rssVerbose
   );
-  await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis.rss`, rss);
+  await writeToS3(Bucket, `${process.env["SLACK_WORKSPACE"]}-emojis.rss`, rss);
 
   console.log(`RSS feeds uploaded`);
 
@@ -126,17 +135,17 @@ const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 const HELP_TEXT = "todo: help text";
 
 // slack event
-async function processEvent(event) {
+async function processEvent(event: EVENTCALLBACK) {
   switch (event.type) {
     case "app_mention": {
       const { text, channel, user } = event;
 
-      async function reply(text) {
+      async function reply(text: string) {
         await postMessage(channel, `<@${user}> ${text}`);
       }
 
       const cleanedText = text
-        .replace(`<@${process.env.SLACK_APP_ID}>`, "")
+        .replace(`<@${process.env["SLACK_APP_ID"]}>`, "")
         .split(" ")
         .map((str) => str.trim())
         .filter(Boolean);
@@ -193,7 +202,7 @@ async function main(event) {
 
     const sigBaseString = ["v0", slackRequestTimestamp, event.body].join(":");
     const expected = `v0=${crypto
-      .createHmac("sha256", process.env.SLACK_SIGNING_SECRET)
+      .createHmac("sha256", process.env["SLACK_SIGNING_SECRET"]!)
       .update(sigBaseString, "utf-8")
       .digest("hex")}`;
 
@@ -244,11 +253,11 @@ async function main(event) {
   }
 }
 
-const wrapper = (fn) => {
-  return async (...args) => {
-    result = await fn(...args);
+const wrapper = (fn: (...args: any[]) => Promise<any>) => {
+  return async (...args: any[]) => {
+    const result = await fn(...args);
 
-    if (result.error) {
+    if ("error" in result) {
       return {
         statusCode: 500,
         headers: { "Content-Type": "application/json" },
@@ -264,6 +273,4 @@ const wrapper = (fn) => {
   };
 };
 
-module.exports = {
-  handler: wrapper(main),
-};
+export const handler = wrapper(main);
