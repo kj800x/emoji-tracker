@@ -66,3 +66,8 @@ export interface AwsApiGatewayEvent {
   body: string;
   isBase64Encoded: boolean;
 }
+
+export interface Metadata {
+  emojis: string[];
+  updated: number;
+}
