@@ -6,9 +6,9 @@ export function buildSlackPost(
 ) {
   return `New emojis since ${previousUpdateTime.toLocaleString("en-US", {
     timeZone: "America/New_York",
-  })}
+  })} US Eastern
 
-${newEmojis.map((emoji) => `\`${emoji}\`: :${emoji}:`).join(" ")}
+${newEmojis.map((emoji) => `:${emoji}: \`${emoji}\``).join("\n")}
 
 ${totalCount} total emojis`.trim();
 }
