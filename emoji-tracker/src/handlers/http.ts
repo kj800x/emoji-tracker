@@ -7,6 +7,8 @@ const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 
 // aws event
 export async function main(event: AwsApiGatewayEvent) {
+  console.log(event);
+
   if (event && "httpMethod" in event && event.httpMethod === "GET") {
     return { hi: "hows it goin" };
   }
