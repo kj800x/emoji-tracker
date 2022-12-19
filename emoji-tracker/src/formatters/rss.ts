@@ -91,8 +91,6 @@ export function buildRss(
   totalCount: number
 ) {
   const pubDate = new Date(now);
-  // pubDate.setHours(7);
-  // pubDate.setMinutes(0);
   pubDate.setSeconds(0);
   pubDate.setMilliseconds(0);
 
@@ -106,8 +104,6 @@ export function buildRssVerbose(
   totalCount: number
 ) {
   const pubDate = new Date(now);
-  // pubDate.setHours(7);
-  // pubDate.setMinutes(0);
   pubDate.setSeconds(0);
   pubDate.setMilliseconds(0);
 

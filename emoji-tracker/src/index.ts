@@ -1,10 +1,11 @@
 import path from "path";
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 import { main } from "./handlers/http";
+import { AwsEvent } from "./types";
 
-const wrapper = (fn: (...args: any[]) => Promise<any>) => {
-  return async (...args: any[]) => {
-    const result = await fn(...args);
+const wrapper = (fn: (event: AwsEvent) => Promise<object>) => {
+  return async (event: AwsEvent) => {
+    const result = await fn(event);
 
     if ("error" in result) {
       return {

@@ -12,7 +12,7 @@ export interface AppMentionEvent {
   event_ts: string;
 }
 
-export interface SlackWebhookRequest<Event> {
+export interface SlackEventCallbackWebhookRequest<Event> {
   token: string;
   team_id: string;
   enterprise_id: string;
@@ -30,6 +30,28 @@ export interface SlackWebhookRequest<Event> {
   }[];
   is_ext_shared_channel: boolean;
   event_context: string;
+}
+
+export interface SlackUrlVerificationWebhookRequest {
+  token: string;
+  challenge: string;
+  type: "url_verification";
+}
+
+export type SlackWebhookRequest =
+  | SlackEventCallbackWebhookRequest<AppMentionEvent>
+  | SlackUrlVerificationWebhookRequest;
+
+export interface AwsCronEvent {
+  version: string;
+  id: string;
+  "detail-type": "Scheduled Event";
+  source: "aws.events";
+  account: string;
+  time: string;
+  region: string;
+  resources: string[];
+  detail: unknown;
 }
 
 export interface AwsApiGatewayEvent {
@@ -66,6 +88,8 @@ export interface AwsApiGatewayEvent {
   body: string;
   isBase64Encoded: boolean;
 }
+
+export type AwsEvent = AwsCronEvent | AwsApiGatewayEvent;
 
 export interface Metadata {
   emojis: string[];

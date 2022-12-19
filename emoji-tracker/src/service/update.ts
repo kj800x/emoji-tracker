@@ -1,8 +1,10 @@
 import AWS from "aws-sdk";
 import { buildRss, buildRssVerbose } from "../formatters/rss";
-import { fetchEmojis } from "../apis/slack";
+import { fetchEmojis, postMessage } from "../apis/slack";
 import { Metadata } from "../types";
 import { readFromS3, writeToS3 } from "../apis/s3";
+import { buildSlackPost } from "../formatters/slack";
+import { getSubscriptions } from "./subscriptions";
 
 async function getPreviousMetadata(bucket: AWS.S3): Promise<Metadata> {
   try {
@@ -22,8 +24,8 @@ async function getPreviousMetadata(bucket: AWS.S3): Promise<Metadata> {
   }
 }
 
-export async function update() {
-  console.log("main function running");
+export async function update(test: boolean = false) {
+  console.log("update function running");
 
   const now = new Date();
 
@@ -69,28 +71,45 @@ export async function update() {
     Object.keys(latestEmojis).length
   );
 
-  console.log(`RSS feeds generated`);
-
-  await writeToS3(
-    Bucket,
-    `${process.env["SLACK_WORKSPACE"]}-emojis-metadata.json`,
-    JSON.stringify({
-      emojis: latestEmojis,
-      updated: now.getTime(),
-    })
+  // post to slack
+  const message = buildSlackPost(
+    now,
+    newEmojis,
+    new Date(previousMetadata.updated),
+    Object.keys(latestEmojis).length
   );
+  for (const channel of await getSubscriptions()) {
+    await postMessage(channel, message);
+  }
 
-  console.log(`Updated metadata uploaded`);
+  if (!test) {
+    console.log(`RSS feeds generated`);
 
-  await writeToS3(
-    Bucket,
-    `${process.env["SLACK_WORKSPACE"]}-emojis-verbose.rss`,
-    rssVerbose
-  );
-  await writeToS3(Bucket, `${process.env["SLACK_WORKSPACE"]}-emojis.rss`, rss);
+    await writeToS3(
+      Bucket,
+      `${process.env["SLACK_WORKSPACE"]}-emojis-metadata.json`,
+      JSON.stringify({
+        emojis: latestEmojis,
+        updated: now.getTime(),
+      })
+    );
 
-  console.log(`RSS feeds uploaded`);
+    console.log(`Updated metadata uploaded`);
 
-  console.log(`All done`);
+    await writeToS3(
+      Bucket,
+      `${process.env["SLACK_WORKSPACE"]}-emojis-verbose.rss`,
+      rssVerbose
+    );
+    await writeToS3(
+      Bucket,
+      `${process.env["SLACK_WORKSPACE"]}-emojis.rss`,
+      rss
+    );
+
+    console.log(`RSS feeds uploaded`);
+  }
+
+  console.log(`update function done`);
   return 0;
 }
