@@ -44,9 +44,11 @@ export async function update(test: boolean = false) {
 
   console.log(`Latest emoji data shows ${latestEmojis.length} emojis`);
 
+  const previousEmojisSet = new Set(previousMetadata.emojis);
+
   const newEmojis = [];
   for (const emoji of latestEmojis) {
-    if (!previousMetadata.emojis.includes(emoji)) {
+    if (!previousEmojisSet.has(emoji)) {
       newEmojis.push(emoji);
     }
   }
@@ -78,7 +80,9 @@ export async function update(test: boolean = false) {
     new Date(previousMetadata.updated),
     Object.keys(latestEmojis).length
   );
-  for (const channel of await getSubscriptions()) {
+
+  const channels = await getSubscriptions();
+  for (const channel of channels) {
     await postMessage(channel, message);
   }
 

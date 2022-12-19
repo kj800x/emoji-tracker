@@ -13,5 +13,7 @@ export async function fetchEmojis() {
 }
 
 export async function postMessage(channel: string, text: string) {
+  console.log({ event: "postMessage", channel, text });
+
   return await web.chat.postMessage({ channel, text });
 }

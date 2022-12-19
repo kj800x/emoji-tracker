@@ -8,7 +8,7 @@ export function buildSlackPost(
     timeZone: "America/New_York",
   })}
 
-${newEmojis.map((emoji) => `:${emoji}:`).join(" ")}
+${newEmojis.map((emoji) => `\`${emoji}\`: :${emoji}:`).join(" ")}
 
 ${totalCount} total emojis`.trim();
 }

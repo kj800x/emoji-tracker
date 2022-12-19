@@ -12,10 +12,10 @@ const HELP_TEXT = `
 
 Mention me in a message like '<@${process.env["SLACK_APP_ID"]}> command'. The valid options for \`command\` are:
 
-* subscribe: add the current channel to the channels getting emoji updates
-* unsubscribe: remove the current channel from the channels getting emoji updates
-* list: list all the channels currently getting updates
-* help: print this help text
+ * subscribe: add the current channel to the channels getting emoji updates
+ * unsubscribe: remove the current channel from the channels getting emoji updates
+ * list: list all the channels currently getting updates
+ * help: print this help text
 
 `.trim();
 
@@ -51,18 +51,18 @@ export async function processEvent(event: AppMentionEvent) {
           }
           await reply(
             `These are the channels currently getting emoji updates:\n${subscriptions
-              .map((s) => `* <@${s}>`)
+              .map((s) => ` * <#${s}>`)
               .join("\n")}`
           );
           break;
         case "subscribe":
           await addSubscription(channel);
-          await reply(`Done, <@${channel}> will now get daily emoji updates`);
+          await reply(`Done, <#${channel}> will now get daily emoji updates`);
           break;
         case "unsubscribe":
           await removeSubscription(channel);
           await reply(
-            `Done, <@${channel}> will no longer get daily emoji updates`
+            `Done, <#${channel}> will no longer get daily emoji updates`
           );
           break;
         default:
