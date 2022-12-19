@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.postMessage = exports.fetchEmojis = void 0;
 const web_api_1 = require("@slack/web-api");
 // Read a token from the environment variables
-const token = process.env.SLACK_OAUTH;
+const token = process.env["SLACK_OAUTH"];
 // Initialize
 const web = new web_api_1.WebClient(token);
 async function fetchEmojis() {

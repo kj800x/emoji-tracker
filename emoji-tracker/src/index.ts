@@ -6,6 +6,7 @@ import AWS from "aws-sdk";
 import { buildRss, buildRssVerbose } from "./rss";
 import { fetchEmojis, postMessage } from "./slack";
 import S3, { GetObjectRequest, PutObjectRequest } from "aws-sdk/clients/s3";
+import { AppMentionEvent, AwsApiGatewayEvent } from "./types";
 
 function writeToS3(S3Client: S3, Key: string, Body: string) {
   return new Promise((resolve, reject) => {
@@ -132,10 +133,10 @@ async function update() {
 
 const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 
-const HELP_TEXT = "todo: help text";
+const HELP_TEXT = "todo: help text (but this time from TypeScript :ts:)";
 
 // slack event
-async function processEvent(event: EVENTCALLBACK) {
+async function processEvent(event: AppMentionEvent) {
   switch (event.type) {
     case "app_mention": {
       const { text, channel, user } = event;
@@ -178,7 +179,7 @@ async function processEvent(event: EVENTCALLBACK) {
 }
 
 // aws event
-async function main(event) {
+async function main(event: AwsApiGatewayEvent) {
   if (event && "httpMethod" in event && event.httpMethod === "GET") {
     return { hi: "hows it goin" };
   }
@@ -186,8 +187,8 @@ async function main(event) {
   if (event) {
     console.log(JSON.stringify(event));
 
-    const slackRequestTimestamp = event.headers["X-Slack-Request-Timestamp"];
-    const slackSignature = event.headers["X-Slack-Signature"];
+    const slackRequestTimestamp = event.headers["X-Slack-Request-Timestamp"]!;
+    const slackSignature = event.headers["X-Slack-Signature"]!;
 
     // Check for replay attacks
     if (

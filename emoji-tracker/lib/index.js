@@ -36,8 +36,8 @@ function readFromS3(S3Client, Key) {
 }
 async function getPreviousMetadata(bucket) {
     try {
-        const string = await readFromS3(bucket, `${process.env.SLACK_WORKSPACE}-emojis-metadata.json`);
-        return JSON.parse(string);
+        const string = await readFromS3(bucket, `${process.env["SLACK_WORKSPACE"]}-emojis-metadata.json`);
+        return JSON.parse(string.toString("utf-8"));
     }
     catch (err) {
         console.log("Failed to read previous metadata from the bucket");
@@ -54,7 +54,7 @@ async function update() {
     const now = new Date();
     const Bucket = new aws_sdk_1.default.S3({
         apiVersion: "2006-03-01",
-        params: { Bucket: process.env.S3_BUCKET },
+        params: { Bucket: process.env["S3_BUCKET"] },
     });
     const previousMetadata = await getPreviousMetadata(Bucket);
     console.log(`Previous metadata showed ${previousMetadata.emojis.length} emojis and was last updated ${previousMetadata.updated}`);
@@ -74,13 +74,13 @@ async function update() {
     const rss = (0, rss_1.buildRss)(now, newEmojis, new Date(previousMetadata.updated), Object.keys(latestEmojis).length);
     const rssVerbose = (0, rss_1.buildRssVerbose)(now, newEmojis, new Date(previousMetadata.updated), Object.keys(latestEmojis).length);
     console.log(`RSS feeds generated`);
-    await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis-metadata.json`, JSON.stringify({
+    await writeToS3(Bucket, `${process.env["SLACK_WORKSPACE"]}-emojis-metadata.json`, JSON.stringify({
         emojis: latestEmojis,
         updated: now.getTime(),
     }));
     console.log(`Updated metadata uploaded`);
-    await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis-verbose.rss`, rssVerbose);
-    await writeToS3(Bucket, `${process.env.SLACK_WORKSPACE}-emojis.rss`, rss);
+    await writeToS3(Bucket, `${process.env["SLACK_WORKSPACE"]}-emojis-verbose.rss`, rssVerbose);
+    await writeToS3(Bucket, `${process.env["SLACK_WORKSPACE"]}-emojis.rss`, rss);
     console.log(`RSS feeds uploaded`);
     console.log(`All done`);
     return 0;
@@ -96,7 +96,7 @@ async function processEvent(event) {
                 await (0, slack_1.postMessage)(channel, `<@${user}> ${text}`);
             }
             const cleanedText = text
-                .replace(`<@${process.env.SLACK_APP_ID}>`, "")
+                .replace(`<@${process.env["SLACK_APP_ID"]}>`, "")
                 .split(" ")
                 .map((str) => str.trim())
                 .filter(Boolean);
@@ -143,7 +143,7 @@ async function main(event) {
         }
         const sigBaseString = ["v0", slackRequestTimestamp, event.body].join(":");
         const expected = `v0=${crypto_1.default
-            .createHmac("sha256", process.env.SLACK_SIGNING_SECRET)
+            .createHmac("sha256", process.env["SLACK_SIGNING_SECRET"])
             .update(sigBaseString, "utf-8")
             .digest("hex")}`;
         // Validate signature
@@ -181,8 +181,8 @@ async function main(event) {
 }
 const wrapper = (fn) => {
     return async (...args) => {
-        result = await fn(...args);
-        if (result.error) {
+        const result = await fn(...args);
+        if ("error" in result) {
             return {
                 statusCode: 500,
                 headers: { "Content-Type": "application/json" },
