@@ -65,6 +65,12 @@ export async function main(event: AwsEvent) {
 
   const slackRequestTimestamp = event.headers["X-Slack-Request-Timestamp"];
   const slackSignature = event.headers["X-Slack-Signature"];
+  const slackRetry = event.headers["X-Slack-Retry-Num"];
+
+  if (slackRetry) {
+    // Relax, we're probably still handling it earlier don't rush us and definitely don't call us again
+    return { ok: true };
+  }
 
   if (slackRequestTimestamp && slackSignature) {
     return await handleSlackWebhook(event);
